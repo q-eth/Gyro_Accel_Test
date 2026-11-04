@@ -1,7 +1,9 @@
 'use strict';
 
 const G = 9.80665;            // standard gravity, m/s²
-const SPHERE_RANGE = 1.5;     // sphere radius in g
+const SPHERE_RANGE = 3;       // sphere edge and Z bar end, in g
+const SVG_RADIUS = 1.5;       // sphere radius in SVG units (index.html)
+const SVG_PER_G = SVG_RADIUS / SPHERE_RANGE;
 const DOT_RADIUS = 0.1;       // must match r of #dot in index.html
 const TRAIL_LENGTH = 40;
 const TEXT_INTERVAL_MS = 100; // numbers refresh at 10 Hz so they stay readable
@@ -158,18 +160,14 @@ function applyUnit(unit) {
   const label = unitLabel();
   document.querySelectorAll('.unit-label').forEach((el) => { el.textContent = label; });
 
-  // ring and Z-bar labels sit at 0.5 g and 1 g
-  if (unit === 'g') {
-    $('ring-label-1').textContent = '1 g';
-    $('ring-label-05').textContent = '0.5 g';
-    $('zbar-label-pos').textContent = '+1 g';
-    $('zbar-label-neg').textContent = '−1 g';
-  } else {
-    $('ring-label-1').textContent = G.toFixed(1) + ' м/с²';
-    $('ring-label-05').textContent = (G / 2).toFixed(1) + ' м/с²';
-    $('zbar-label-pos').textContent = '+' + G.toFixed(1);
-    $('zbar-label-neg').textContent = '−' + G.toFixed(1);
-  }
+  // scale labels carry their value in g; Z-bar labels are signed and, in м/с², have no unit to save space
+  document.querySelectorAll('[data-g]').forEach((el) => {
+    const g = Number(el.dataset.g);
+    const isBar = el.hasAttribute('data-bar');
+    const sign = isBar ? (g < 0 ? '−' : '+') : '';
+    const value = unit === 'g' ? Math.abs(g) + ' g' : (Math.abs(g) * G).toFixed(1) + (isBar ? '' : ' м/с²');
+    el.textContent = sign + value;
+  });
   updateText();
 }
 
@@ -205,9 +203,9 @@ function drawAccel() {
   d.z += (a.z / G - d.z) * SMOOTHING;
 
   // SVG y grows downward, device Y points to the top of the screen
-  let px = d.x;
-  let py = -d.y;
-  const limit = SPHERE_RANGE - DOT_RADIUS;
+  let px = d.x * SVG_PER_G;
+  let py = -d.y * SVG_PER_G;
+  const limit = SVG_RADIUS - DOT_RADIUS;
   const len = Math.hypot(px, py);
   if (len > limit) {
     px *= limit / len;
@@ -222,7 +220,7 @@ function drawAccel() {
   if (state.trail.length > TRAIL_LENGTH) state.trail.shift();
   $('trail').setAttribute('points', state.trail.join(' '));
 
-  const zy = Math.max(-SPHERE_RANGE, Math.min(SPHERE_RANGE, -d.z));
+  const zy = Math.max(-SVG_RADIUS, Math.min(SVG_RADIUS, -d.z * SVG_PER_G));
   $('zbar-marker').setAttribute('cy', zy.toFixed(4));
   const fill = $('zbar-fill');
   fill.setAttribute('y', Math.min(0, zy).toFixed(4));

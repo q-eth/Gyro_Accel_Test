@@ -57,29 +57,33 @@
           </filter>
         </defs>
 
-        <!-- sphere, radius = 1.5 g -->
+        <!-- sphere: radius 1.5 SVG units = 3 g, so 1 g = 0.5 units -->
         <circle r="1.5" fill="url(#sphere-grad)" class="sphere-edge"/>
         <circle r="1" class="ring"/>
         <circle r="0.5" class="ring"/>
         <line x1="-1.5" y1="0" x2="1.5" y2="0" class="cross"/>
         <line x1="0" y1="-1.5" x2="0" y2="1.5" class="cross"/>
-        <text x="0.04" y="-1.04" class="ring-label" id="ring-label-1">1 g</text>
-        <text x="0.04" y="-0.54" class="ring-label" id="ring-label-05">0.5 g</text>
+        <text x="0.04" y="-1.04" class="ring-label" data-g="2">2 g</text>
+        <text x="0.04" y="-0.54" class="ring-label" data-g="1">1 g</text>
         <text x="1.36" y="-0.05" class="axis-label axis-x-fill">+X</text>
         <text x="0.04" y="-1.38" class="axis-label axis-y-fill">+Y</text>
 
         <polyline id="trail" class="trail" points=""/>
         <circle id="dot" r="0.1" fill="url(#dot-grad)" filter="url(#glow)"/>
 
-        <!-- Z bar, same scale: ±1.5 g -->
+        <!-- Z bar, same scale: ±3 g -->
         <g transform="translate(1.95 0)">
           <rect x="-0.09" y="-1.5" width="0.18" height="3" rx="0.09" class="zbar-track"/>
           <line x1="-0.15" y1="-1" x2="0.15" y2="-1" class="zbar-tick"/>
+          <line x1="-0.15" y1="-0.5" x2="0.15" y2="-0.5" class="zbar-tick"/>
           <line x1="-0.15" y1="0" x2="0.15" y2="0" class="zbar-tick"/>
+          <line x1="-0.15" y1="0.5" x2="0.15" y2="0.5" class="zbar-tick"/>
           <line x1="-0.15" y1="1" x2="0.15" y2="1" class="zbar-tick"/>
-          <text x="0.2" y="-0.97" class="ring-label" id="zbar-label-pos">+1 g</text>
+          <text x="0.2" y="-0.97" class="ring-label" data-g="2" data-bar>+2 g</text>
+          <text x="0.2" y="-0.47" class="ring-label" data-g="1" data-bar>+1 g</text>
           <text x="0.2" y="0.03" class="ring-label">0</text>
-          <text x="0.2" y="1.03" class="ring-label" id="zbar-label-neg">−1 g</text>
+          <text x="0.2" y="0.53" class="ring-label" data-g="-1" data-bar>−1 g</text>
+          <text x="0.2" y="1.03" class="ring-label" data-g="-2" data-bar>−2 g</text>
           <text x="0" y="-1.54" class="axis-label axis-z-fill" text-anchor="middle">Z</text>
           <rect id="zbar-fill" x="-0.09" y="0" width="0.18" height="0" class="zbar-fill"/>
           <circle id="zbar-marker" r="0.1" cy="0" class="zbar-marker"/>
@@ -89,7 +93,7 @@
       <p class="hint">
         Точка показывает, куда направлен измеренный вектор ускорения в плоскости X/Y телефона.
         Когда телефон лежит горизонтально, всё ускорение свободного падения приходится на ось Z (+1&nbsp;g), и точка находится в центре.
-        При наклоне телефона оно распределяется по осям X и Y. Внутреннее кольцо — 0.5&nbsp;g, внешнее — 1&nbsp;g, край сферы — 1.5&nbsp;g.
+        При наклоне телефона оно распределяется по осям X и Y. Внутреннее кольцо — 1&nbsp;g, внешнее — 2&nbsp;g, край сферы — 3&nbsp;g.
       </p>
     </section>
 
