@@ -224,9 +224,9 @@ function updateText() {
   }
   if (state.orient) {
     const { alpha, beta, gamma } = state.orient;
-    $('ox').textContent = fmtSigned(beta, 1) + '°';
-    $('oy').textContent = fmtSigned(gamma, 1) + '°';
-    $('oz').textContent = alpha.toFixed(1) + '°';
+    $('ox').textContent = fmtSigned(beta, 1);
+    $('oy').textContent = fmtSigned(gamma, 1);
+    $('oz').textContent = alpha.toFixed(1);
   }
   if (state.rate) {
     $('rx').textContent = fmtSigned(state.rate.beta, 1);

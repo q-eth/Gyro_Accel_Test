@@ -5,7 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#0d1220">
   <title>Gyro &amp; Accel Lab</title>
-  <link rel="stylesheet" href="css/style.css">
+  <!-- bump ?v= on every change so phones don't keep an old cached copy -->
+  <link rel="stylesheet" href="css/style.css?v=2">
 </head>
 <body>
   <header class="topbar">
@@ -32,12 +33,12 @@
         </div>
       </div>
 
-      <div class="readouts">
-        <div class="readout axis-x-color"><span class="readout-label">X</span><span class="readout-value" id="ax">—</span></div>
-        <div class="readout axis-y-color"><span class="readout-label">Y</span><span class="readout-value" id="ay">—</span></div>
-        <div class="readout axis-z-color"><span class="readout-label">Z</span><span class="readout-value" id="az">—</span></div>
+      <div class="rates">
+        <span class="rates-title"><span>Ускорение, <span class="unit-label">g</span></span><span class="rates-extra">|a| = <b id="amag">—</b></span></span>
+        <span class="rate axis-x-color">X <b id="ax">—</b></span>
+        <span class="rate axis-y-color">Y <b id="ay">—</b></span>
+        <span class="rate axis-z-color">Z <b id="az">—</b></span>
       </div>
-      <p class="sub-readout">|a| = <span id="amag">—</span> <span class="unit-label">g</span></p>
 
       <svg class="accel-viz" viewBox="-1.62 -1.62 4.05 3.24" role="img" aria-label="Сфера с красной точкой, показывающей ускорение по осям X и Y, и шкала ускорения по оси Z">
         <defs>
@@ -91,7 +92,7 @@
       </svg>
 
       <details class="description">
-        <summary></summary>
+        <summary><span class="when-closed">Показать описание</span><span class="when-open">Скрыть описание</span></summary>
         <p class="hint">
           Точка показывает, куда направлен измеренный вектор ускорения в плоскости X/Y телефона.
           Когда телефон лежит горизонтально, всё ускорение свободного падения приходится на ось Z (+1&nbsp;g), и точка находится в центре.
@@ -110,10 +111,11 @@
         </label>
       </div>
 
-      <div class="readouts">
-        <div class="readout axis-x-color"><span class="readout-label">X <small>β тангаж</small></span><span class="readout-value" id="ox">—</span></div>
-        <div class="readout axis-y-color"><span class="readout-label">Y <small>γ крен</small></span><span class="readout-value" id="oy">—</span></div>
-        <div class="readout axis-z-color"><span class="readout-label">Z <small>α рыскание</small></span><span class="readout-value" id="oz">—</span></div>
+      <div class="rates">
+        <span class="rates-title">Углы ориентации, °</span>
+        <span class="rate axis-x-color">X <small>β</small> <b id="ox">—</b></span>
+        <span class="rate axis-y-color">Y <small>γ</small> <b id="oy">—</b></span>
+        <span class="rate axis-z-color">Z <small>α</small> <b id="oz">—</b></span>
       </div>
       <div class="rates">
         <span class="rates-title">Угловая скорость, °/с</span>
@@ -141,10 +143,11 @@
       </div>
 
       <details class="description">
-        <summary></summary>
+        <summary><span class="when-closed">Показать описание</span><span class="when-open">Скрыть описание</span></summary>
         <p class="hint">
           Гироскоп измеряет угловую скорость (°/&#8288;с). Браузер объединяет его данные с акселерометром
-          (и магнитометром, если он есть), чтобы получить углы ориентации в градусах.
+          (и магнитометром, если он есть), чтобы получить углы ориентации в градусах: β — тангаж (наклон вперёд-назад, ось X), γ — крен (наклон влево-вправо, ось Y),
+          α — рыскание (поворот вокруг оси Z).
           Рыскание (Z) часто отсчитывается от произвольного начального направления, поэтому в 3D-виде оно не учитывается, пока вы его не включите.
         </p>
         <p class="hint">
@@ -161,6 +164,6 @@
     <p>Учебный проект. Частота датчиков: <span id="rate-hz">—</span></p>
   </footer>
 
-  <script src="js/app.js"></script>
+  <script src="js/app.js?v=2"></script>
 </body>
 </html>

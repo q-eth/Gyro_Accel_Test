@@ -180,50 +180,9 @@ body {
 
 .switch input { width: 18px; height: 18px; accent-color: var(--accent); }
 
-/* ---------- readouts ---------- */
+/* ---------- value rows ---------- */
 
-.readouts {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-}
-
-.readout {
-  background: var(--bg);
-  border: 1px solid var(--card-border);
-  border-radius: 12px;
-  padding: 8px 10px;
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-}
-
-.readout-label {
-  font-size: 0.75rem;
-  font-weight: 700;
-}
-
-.readout-label small {
-  font-weight: 400;
-  color: var(--muted);
-}
-
-.readout-value {
-  font-size: clamp(1.05rem, 5vw, 1.45rem);
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-  color: var(--text);
-  white-space: nowrap;
-}
-
-.sub-readout {
-  margin: 10px 0 4px;
-  font-size: 0.85rem;
-  color: var(--muted);
-  font-variant-numeric: tabular-nums;
-}
-
-/* fixed grid so large angular velocities never push values onto a new line */
+/* title line + three fixed columns, so large values never push anything onto a new line */
 .rates {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -234,7 +193,19 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
-.rates-title { grid-column: 1 / -1; }
+.card-head + .rates { margin-top: 0; }
+
+.rates-title {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.rates-extra b {
+  font-weight: 400;
+  color: var(--text);
+}
 
 .rate {
   white-space: nowrap;
@@ -242,14 +213,19 @@ body {
   font-weight: 700;
 }
 
+.rate small {
+  font-weight: 400;
+  color: var(--muted);
+}
+
 .rate b {
   font-weight: 400;
   color: var(--text);
 }
 
-.axis-x-color .readout-label, .rate.axis-x-color { color: var(--x); }
-.axis-y-color .readout-label, .rate.axis-y-color { color: var(--y); }
-.axis-z-color .readout-label, .rate.axis-z-color { color: var(--z); }
+.rate.axis-x-color { color: var(--x); }
+.rate.axis-y-color { color: var(--y); }
+.rate.axis-z-color { color: var(--z); }
 
 .hint {
   font-size: 0.82rem;
@@ -257,7 +233,7 @@ body {
   margin: 12px 0 0;
 }
 
-/* collapsible card description; the summary label comes from CSS so it can change when opened */
+/* collapsible card description; the label text is in the HTML, CSS only picks which half to show */
 .description { margin-top: 12px; }
 
 .description summary {
@@ -277,9 +253,10 @@ body {
 
 .description summary::-webkit-details-marker { display: none; }
 .description summary::before { content: "▸"; }
-.description summary::after { content: "Показать описание"; }
 .description[open] summary::before { content: "▾"; }
-.description[open] summary::after { content: "Скрыть описание"; }
+.description .when-open,
+.description[open] .when-closed { display: none; }
+.description[open] .when-open { display: inline; }
 
 /* ---------- accelerometer SVG ---------- */
 
