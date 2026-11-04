@@ -267,12 +267,62 @@ function drawAccel() {
   fill.setAttribute('height', Math.abs(zy).toFixed(4));
 }
 
+// ---------- orientation math ----------
+// Quaternions are [w, x, y, z] in the right-handed world frame (X east, Y north, Z up).
+
+function qmul(a, b) {
+  return [
+    a[0] * b[0] - a[1] * b[1] - a[2] * b[2] - a[3] * b[3],
+    a[0] * b[1] + a[1] * b[0] + a[2] * b[3] - a[3] * b[2],
+    a[0] * b[2] - a[1] * b[3] + a[2] * b[0] + a[3] * b[1],
+    a[0] * b[3] + a[1] * b[2] - a[2] * b[1] + a[3] * b[0],
+  ];
+}
+
+function qnormalize(q) {
+  const n = Math.hypot(q[0], q[1], q[2], q[3]);
+  return n < 1e-9 ? [1, 0, 0, 0] : q.map((v) => v / n);
+}
+
+// Device orientation is R = Rz(α)·Rx(β)·Ry(γ).
+function eulerToQuat(alpha, beta, gamma) {
+  const h = Math.PI / 360; // degrees → half-angle radians
+  const qz = [Math.cos(alpha * h), 0, 0, Math.sin(alpha * h)];
+  const qx = [Math.cos(beta * h), Math.sin(beta * h), 0, 0];
+  const qy = [Math.cos(gamma * h), 0, Math.sin(gamma * h), 0];
+  return qmul(qmul(qz, qx), qy);
+}
+
+// Swing-twist split q = twist·swing, twist about the world vertical. Dropping the twist removes
+// heading without the Euler-angle jumps that happen when the phone stands perpendicular to the floor.
+function removeHeading(q) {
+  const twist = qnormalize([q[0], 0, 0, q[3]]);
+  return qmul([twist[0], 0, 0, -twist[3]], q);
+}
+
+// Rotation matrix for CSS, whose Y axis points down: M·R·M with M = diag(1, −1, 1).
+function quatToCssMatrix([w, x, y, z]) {
+  const r00 = 1 - 2 * (y * y + z * z), r01 = 2 * (x * y - w * z), r02 = 2 * (x * z + w * y);
+  const r10 = 2 * (x * y + w * z), r11 = 1 - 2 * (x * x + z * z), r12 = 2 * (y * z - w * x);
+  const r20 = 2 * (x * z - w * y), r21 = 2 * (y * z + w * x), r22 = 1 - 2 * (x * x + y * y);
+  // matrix3d is column-major
+  const m = [r00, -r10, r20, 0, -r01, r11, -r21, 0, r02, -r12, r22, 0, 0, 0, 0, 1];
+  return 'matrix3d(' + m.map((v) => v.toFixed(6)).join(',') + ')';
+}
+
 function drawOrientation() {
   const { alpha, beta, gamma } = state.orient;
-  const yaw = state.useYaw ? alpha : 0;
-  // Device orientation is R = Rz(α)·Rx(β)·Ry(γ) in a right-handed frame (Z up).
-  // CSS has Y pointing down, which flips the sign of rotations about X and Z.
-  $('device').style.transform = `rotateZ(${-yaw}deg) rotateX(${-beta}deg) rotateY(${gamma}deg)`;
+  let target = eulerToQuat(alpha, beta, gamma);
+  if (!state.useYaw) target = removeHeading(target);
+
+  // q and −q are the same rotation: blend toward the nearer one
+  let q = state.viewQuat || target;
+  const dot = q[0] * target[0] + q[1] * target[1] + q[2] * target[2] + q[3] * target[3];
+  if (dot < 0) target = target.map((v) => -v);
+  q = qnormalize(q.map((v, i) => v + (target[i] - v) * SMOOTHING));
+  state.viewQuat = q;
+
+  $('device').style.transform = quatToCssMatrix(q);
 }
 
 let lastText = 0;
