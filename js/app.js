@@ -293,11 +293,15 @@ function eulerToQuat(alpha, beta, gamma) {
   return qmul(qmul(qz, qx), qy);
 }
 
-// Swing-twist split q = twist·swing, twist about the world vertical. Dropping the twist removes
+// Swing-twist split q = twist·swing, twist about the world vertical. Undoing the twist removes
 // heading without the Euler-angle jumps that happen when the phone stands perpendicular to the floor.
-function removeHeading(q) {
+function inverseHeading(q) {
   const twist = qnormalize([q[0], 0, 0, q[3]]);
-  return qmul([twist[0], 0, 0, -twist[3]], q);
+  return [twist[0], 0, 0, -twist[3]];
+}
+
+function removeHeading(q) {
+  return qmul(inverseHeading(q), q);
 }
 
 // Rotation matrix for CSS, whose Y axis points down: M·R·M with M = diag(1, −1, 1).
@@ -313,7 +317,14 @@ function quatToCssMatrix([w, x, y, z]) {
 function drawOrientation() {
   const { alpha, beta, gamma } = state.orient;
   let target = eulerToQuat(alpha, beta, gamma);
-  if (!state.useYaw) target = removeHeading(target);
+  if (state.useYaw) {
+    // yaw is shown relative to the heading the phone had when yaw was switched on,
+    // so the view starts where the tilt-only view was and turns only as much as the phone does
+    if (!state.headingRef) state.headingRef = inverseHeading(target);
+    target = qmul(state.headingRef, target);
+  } else {
+    target = removeHeading(target);
+  }
 
   // q and −q are the same rotation: blend toward the nearer one
   let q = state.viewQuat || target;
@@ -351,6 +362,7 @@ const yawToggle = $('yaw-toggle');
 yawToggle.checked = state.useYaw;
 yawToggle.addEventListener('change', () => {
   state.useYaw = yawToggle.checked;
+  state.headingRef = null; // re-zero heading on every switch-on
   savePref('useYaw', state.useYaw ? '1' : '0');
 });
 
