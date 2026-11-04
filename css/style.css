@@ -257,6 +257,30 @@ body {
   margin: 12px 0 0;
 }
 
+/* collapsible card description; the summary label comes from CSS so it can change when opened */
+.description { margin-top: 12px; }
+
+.description summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  color: var(--accent);
+  background: var(--bg);
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  padding: 6px 12px;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+
+.description summary::-webkit-details-marker { display: none; }
+.description summary::before { content: "▸"; }
+.description summary::after { content: "Показать описание"; }
+.description[open] summary::before { content: "▾"; }
+.description[open] summary::after { content: "Скрыть описание"; }
+
 /* ---------- accelerometer SVG ---------- */
 
 .accel-viz {
