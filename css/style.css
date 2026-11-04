@@ -215,11 +215,33 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
-.sub-readout > span { margin-right: 6px; }
+/* fixed grid so large angular velocities never push values onto a new line */
+.rates {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px 8px;
+  margin: 10px 0 4px;
+  font-size: 0.85rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
 
-.axis-x-color .readout-label, .sub-readout .axis-x-color { color: var(--x); }
-.axis-y-color .readout-label, .sub-readout .axis-y-color { color: var(--y); }
-.axis-z-color .readout-label, .sub-readout .axis-z-color { color: var(--z); }
+.rates-title { grid-column: 1 / -1; }
+
+.rate {
+  white-space: nowrap;
+  overflow: hidden;
+  font-weight: 700;
+}
+
+.rate b {
+  font-weight: 400;
+  color: var(--text);
+}
+
+.axis-x-color .readout-label, .rate.axis-x-color { color: var(--x); }
+.axis-y-color .readout-label, .rate.axis-y-color { color: var(--y); }
+.axis-z-color .readout-label, .rate.axis-z-color { color: var(--z); }
 
 .hint {
   font-size: 0.82rem;
@@ -314,10 +336,8 @@ body {
 
 .plane-top {
   position: absolute;
-  top: 6px;
-  left: 0;
-  right: 0;
-  text-align: center;
+  top: 8px;
+  right: 12px;
   font-size: 12px;
   font-weight: 700;
   color: rgba(230, 235, 245, 0.9);

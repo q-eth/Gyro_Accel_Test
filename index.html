@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="en">
+<html lang="ru">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#0d1220">
-  <title>Gyro &amp; Accelerometer Lab</title>
+  <title>Gyro &amp; Accel Lab</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -12,23 +12,23 @@
     <h1>Gyro &amp; Accel Lab</h1>
     <div class="status" id="status" data-state="idle">
       <span class="status-dot"></span>
-      <span id="status-text">Not started</span>
+      <span id="status-text">Не запущено</span>
     </div>
   </header>
 
   <section class="start-panel" id="start-panel">
-    <p id="start-message">This page reads your phone's motion sensors. Tap <b>Start</b> to allow access.</p>
-    <button class="btn-primary" id="start-btn" type="button">Start sensors</button>
+    <p id="start-message">Эта страница считывает датчики движения телефона. Нажмите <b>«Старт»</b>, чтобы разрешить доступ.</p>
+    <button class="btn-primary" id="start-btn" type="button">Старт</button>
   </section>
 
   <main class="grid">
     <!-- Accelerometer -->
     <section class="card" aria-labelledby="accel-title">
       <div class="card-head">
-        <h2 id="accel-title">Accelerometer</h2>
-        <div class="segmented" role="group" aria-label="Acceleration units">
+        <h2 id="accel-title">Акселерометр</h2>
+        <div class="segmented" role="group" aria-label="Единицы ускорения">
           <button type="button" data-unit="g" aria-pressed="true">g</button>
-          <button type="button" data-unit="ms2" aria-pressed="false">m/s²</button>
+          <button type="button" data-unit="ms2" aria-pressed="false">м/с²</button>
         </div>
       </div>
 
@@ -39,7 +39,7 @@
       </div>
       <p class="sub-readout">|a| = <span id="amag">—</span> <span class="unit-label">g</span></p>
 
-      <svg class="accel-viz" viewBox="-1.62 -1.62 4.05 3.24" role="img" aria-label="Sphere with a red dot showing acceleration on the X and Y axes, and a bar showing the Z axis">
+      <svg class="accel-viz" viewBox="-1.62 -1.62 4.05 3.24" role="img" aria-label="Сфера с красной точкой, показывающей ускорение по осям X и Y, и шкала ускорения по оси Z">
         <defs>
           <radialGradient id="sphere-grad" cx="38%" cy="32%" r="75%">
             <stop offset="0%" stop-color="#3b4d6e"/>
@@ -87,40 +87,39 @@
       </svg>
 
       <p class="hint">
-        The dot shows where the measured acceleration vector points in the X/Y plane of the phone.
-        Lying flat, gravity is all on Z (+1 g) and the dot sits in the center. Tilt the phone and
-        gravity shifts onto X and Y. The inner ring is 0.5 g, the outer ring 1 g, and the sphere edge 1.5 g.
+        Точка показывает, куда направлен измеренный вектор ускорения в плоскости X/Y телефона.
+        Когда телефон лежит горизонтально, всё ускорение свободного падения приходится на ось Z (+1&nbsp;g), и точка находится в центре.
+        При наклоне телефона оно распределяется по осям X и Y. Внутреннее кольцо — 0.5&nbsp;g, внешнее — 1&nbsp;g, край сферы — 1.5&nbsp;g.
       </p>
     </section>
 
     <!-- Gyroscope / orientation -->
     <section class="card" aria-labelledby="gyro-title">
       <div class="card-head">
-        <h2 id="gyro-title">Gyroscope</h2>
+        <h2 id="gyro-title">Гироскоп</h2>
         <label class="switch">
           <input type="checkbox" id="yaw-toggle">
-          <span>Include yaw (Z)</span>
+          <span>Учитывать рыскание (Z)</span>
         </label>
       </div>
 
       <div class="readouts">
-        <div class="readout axis-x-color"><span class="readout-label">X <small>β pitch</small></span><span class="readout-value" id="ox">—</span></div>
-        <div class="readout axis-y-color"><span class="readout-label">Y <small>γ roll</small></span><span class="readout-value" id="oy">—</span></div>
-        <div class="readout axis-z-color"><span class="readout-label">Z <small>α yaw</small></span><span class="readout-value" id="oz">—</span></div>
+        <div class="readout axis-x-color"><span class="readout-label">X <small>β тангаж</small></span><span class="readout-value" id="ox">—</span></div>
+        <div class="readout axis-y-color"><span class="readout-label">Y <small>γ крен</small></span><span class="readout-value" id="oy">—</span></div>
+        <div class="readout axis-z-color"><span class="readout-label">Z <small>α рыскание</small></span><span class="readout-value" id="oz">—</span></div>
       </div>
-      <p class="sub-readout">
-        Angular velocity:
-        <span class="axis-x-color">X <span id="rx">—</span></span>
-        <span class="axis-y-color">Y <span id="ry">—</span></span>
-        <span class="axis-z-color">Z <span id="rz">—</span></span>
-        °/s
-      </p>
+      <div class="rates">
+        <span class="rates-title">Угловая скорость, °/с</span>
+        <span class="rate axis-x-color">X <b id="rx">—</b></span>
+        <span class="rate axis-y-color">Y <b id="ry">—</b></span>
+        <span class="rate axis-z-color">Z <b id="rz">—</b></span>
+      </div>
 
-      <div class="scene" aria-label="3D view of the phone's plane tilting relative to the horizontal reference plane" role="img">
+      <div class="scene" aria-label="3D-вид: плоскость телефона наклоняется относительно горизонтальной опорной плоскости" role="img">
         <div class="world">
           <div class="ground"></div>
           <div class="device" id="device">
-            <div class="plane"><span class="plane-top">▲ top</span></div>
+            <div class="plane"><span class="plane-top">▲ верх</span></div>
             <div class="axis axis-x"><i></i><i></i></div>
             <div class="axis axis-y"><i></i><i></i></div>
             <div class="axis axis-z"><i></i><i></i></div>
@@ -131,20 +130,20 @@
         <span><b class="chip axis-x-bg"></b>X</span>
         <span><b class="chip axis-y-bg"></b>Y</span>
         <span><b class="chip axis-z-bg"></b>Z</span>
-        <span><b class="chip ground-chip"></b>horizontal reference</span>
+        <span><b class="chip ground-chip"></b>горизонтальная опорная плоскость</span>
       </div>
 
       <p class="hint">
-        The gyroscope measures angular velocity (°/s). The browser fuses it with the accelerometer
-        (and magnetometer, if the phone has one) to get the orientation angles in degrees.
-        Yaw (Z) is often measured from an arbitrary starting direction, so the 3D view leaves it out unless you switch it on.
+        Гироскоп измеряет угловую скорость (°/&#8288;с). Браузер объединяет его данные с акселерометром
+        (и магнитометром, если он есть), чтобы получить углы ориентации в градусах.
+        Рыскание (Z) часто отсчитывается от произвольного начального направления, поэтому в 3D-виде оно не учитывается, пока вы его не включите.
       </p>
     </section>
   </main>
 
   <footer class="footer">
-    <p>Axes follow the W3C DeviceOrientation spec: <b>X</b> points to the right edge of the screen, <b>Y</b> to the top edge, <b>Z</b> out of the screen toward you.</p>
-    <p>Educational project. Sensor rate: <span id="rate-hz">—</span></p>
+    <p>Оси соответствуют спецификации W3C DeviceOrientation: <b>X</b> направлена к правому краю экрана, <b>Y</b> — к верхнему краю, <b>Z</b> — из экрана на вас.</p>
+    <p>Учебный проект. Частота датчиков: <span id="rate-hz">—</span></p>
   </footer>
 
   <script src="js/app.js"></script>

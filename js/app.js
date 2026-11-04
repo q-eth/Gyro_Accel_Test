@@ -82,25 +82,25 @@ async function start() {
   if (needsPermission()) {
     try {
       if (!(await requestPermissions())) {
-        setStatus('error', 'Permission denied');
-        showStartPanel('Motion access was denied. On iPhone, close the tab, reopen the page and allow access, or enable it in <b>Settings → Safari → Motion &amp; Orientation Access</b>.', true);
+        setStatus('error', 'Доступ запрещён');
+        showStartPanel('Доступ к датчикам движения запрещён. На iPhone закройте вкладку, откройте страницу заново и разрешите доступ, либо включите его в <b>Настройках → Safari</b> (доступ к движению и ориентации).', true);
         return;
       }
     } catch (err) {
-      setStatus('error', 'Permission error');
-      showStartPanel('Could not request sensor access: ' + err.message, true);
+      setStatus('error', 'Ошибка доступа');
+      showStartPanel('Не удалось запросить доступ к датчикам: ' + err.message, true);
       return;
     }
   }
 
   state.started = true;
-  if (!state.accel && !state.orient) setStatus('waiting', 'Waiting for data…');
+  if (!state.accel && !state.orient) setStatus('waiting', 'Ожидание данных…');
   $('start-panel').hidden = true;
 
   setTimeout(() => {
     if (!state.accel && !state.orient) {
-      setStatus('error', 'No sensor data');
-      showStartPanel('No sensor data received. Open this page on a phone or tablet with an accelerometer and gyroscope. On a desktop you can simulate them in Chrome DevTools → <b>More tools → Sensors</b>.', false);
+      setStatus('error', 'Нет данных');
+      showStartPanel('Данные с датчиков не поступают. Откройте страницу на телефоне или планшете с акселерометром и гироскопом. На компьютере датчики можно имитировать в инструментах разработчика Chrome: <b>Дополнительные инструменты → Датчики</b>.', false);
     }
   }, 3000);
 }
@@ -143,7 +143,7 @@ function fmtAccel(ms2) {
 }
 
 function unitLabel() {
-  return state.unit === 'g' ? 'g' : 'm/s²';
+  return state.unit === 'g' ? 'g' : 'м/с²';
 }
 
 // ---------- units ----------
@@ -165,8 +165,8 @@ function applyUnit(unit) {
     $('zbar-label-pos').textContent = '+1 g';
     $('zbar-label-neg').textContent = '−1 g';
   } else {
-    $('ring-label-1').textContent = G.toFixed(1) + ' m/s²';
-    $('ring-label-05').textContent = (G / 2).toFixed(1) + ' m/s²';
+    $('ring-label-1').textContent = G.toFixed(1) + ' м/с²';
+    $('ring-label-05').textContent = (G / 2).toFixed(1) + ' м/с²';
     $('zbar-label-pos').textContent = '+' + G.toFixed(1);
     $('zbar-label-neg').textContent = '−' + G.toFixed(1);
   }
@@ -249,7 +249,7 @@ function frame(t) {
 }
 
 setInterval(() => {
-  $('rate-hz').textContent = state.eventCount ? state.eventCount + ' Hz' : '—';
+  $('rate-hz').textContent = state.eventCount ? state.eventCount + ' Гц' : '—';
   state.eventCount = 0;
 }, 1000);
 
@@ -272,15 +272,15 @@ applyUnit(state.unit === 'ms2' ? 'ms2' : 'g');
 requestAnimationFrame(frame);
 
 if (!window.isSecureContext) {
-  setStatus('error', 'HTTPS required');
-  showStartPanel('Motion sensors only work over <b>HTTPS</b>. Open the GitHub Pages address (https://…) instead of a local file or plain http.', false);
+  setStatus('error', 'Нужен HTTPS');
+  showStartPanel('Датчики движения работают только по <b>HTTPS</b>. Откройте адрес GitHub Pages (https://…), а не локальный файл или страницу по http.', false);
 } else if (typeof DeviceMotionEvent === 'undefined' && typeof DeviceOrientationEvent === 'undefined') {
-  setStatus('error', 'Not supported');
-  showStartPanel('This browser does not support motion sensor events.', false);
+  setStatus('error', 'Не поддерживается');
+  showStartPanel('Этот браузер не поддерживает события датчиков движения.', false);
 } else {
   listen();
   if (needsPermission()) {
-    setStatus('idle', 'Tap Start');
+    setStatus('idle', 'Нажмите «Старт»');
   } else {
     start();
   }
