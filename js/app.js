@@ -21,7 +21,15 @@ const state = {
   trail: [],
   eventCount: 0,
   started: false,
+  // diagnostics shown when no data arrives
+  motionEvents: 0,
+  motionEmpty: 0,
+  orientEvents: 0,
+  orientEmpty: 0,
+  permission: 'не запрашивалось',
 };
+
+const NO_DATA_TIMEOUT_MS = 4000;
 
 // ---------- preferences ----------
 
@@ -45,10 +53,21 @@ function setStatus(kind, text) {
   $('status-text').textContent = text;
 }
 
-function showStartPanel(message, showButton) {
+function showStartPanel(message, showButton, buttonText = 'Старт') {
   $('start-panel').hidden = false;
   $('start-message').innerHTML = message;
   $('start-btn').hidden = !showButton;
+  $('start-btn').textContent = buttonText;
+}
+
+function escapeHtml(s) {
+  return s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+}
+
+function diagnostics() {
+  return '<br><small class="diag">Диагностика: движение — ' + state.motionEvents + ' событий (пустых: ' + state.motionEmpty +
+    '), ориентация — ' + state.orientEvents + ' (пустых: ' + state.orientEmpty + '); разрешение: ' + escapeHtml(state.permission) +
+    '; ' + escapeHtml(navigator.userAgent) + '</small>';
 }
 
 // ---------- sensor setup ----------
@@ -68,14 +87,18 @@ async function requestPermissions() {
     requests.push(DeviceOrientationEvent.requestPermission());
   }
   const results = await Promise.all(requests);
+  state.permission = results.join(', ');
   return results.every((r) => r === 'granted');
 }
 
-// Listeners go on at page load: browsers without a permission prompt deliver data
-// straight away, the others (iOS) start delivering once the user taps Start.
+// Listeners go on at page load so browsers without a permission prompt deliver data
+// straight away. After a grant they are attached again: Chrome does not restart a sensor
+// subscription that was made before permission was given.
 function listen() {
-  window.addEventListener('devicemotion', onMotion);
-  window.addEventListener('deviceorientation', onOrientation);
+  for (const [type, handler] of [['devicemotion', onMotion], ['deviceorientation', onOrientation], ['deviceorientationabsolute', onOrientation]]) {
+    window.removeEventListener(type, handler);
+    window.addEventListener(type, handler);
+  }
 }
 
 async function start() {
@@ -96,32 +119,49 @@ async function start() {
   }
 
   state.started = true;
+  listen();
   if (!state.accel && !state.orient) setStatus('waiting', 'Ожидание данных…');
   $('start-panel').hidden = true;
 
   setTimeout(() => {
-    if (!state.accel && !state.orient) {
-      setStatus('error', 'Нет данных');
-      showStartPanel('Данные с датчиков не поступают. Откройте страницу на телефоне или планшете с акселерометром и гироскопом. На компьютере датчики можно имитировать в инструментах разработчика Chrome: <b>Дополнительные инструменты → Датчики</b>.', false);
-    }
-  }, 3000);
+    if (state.accel || state.orient) return;
+    state.started = false;
+    setStatus('error', 'Нет данных');
+    const gotEmpty = state.motionEmpty + state.orientEmpty > 0;
+    const message = gotEmpty
+      ? 'Браузер присылает события датчиков, но без значений — скорее всего, доступ заблокирован в настройках сайта. ' +
+        'В Chrome нажмите на значок слева от адреса → <b>Разрешения</b> (или <b>⋮ → Настройки → Настройки сайтов → Датчики движения</b>) и разрешите доступ для этого сайта, затем обновите страницу.'
+      : 'Данные с датчиков не поступают. Проверьте, что в <b>⋮ → Настройки → Настройки сайтов → Датчики движения</b> доступ разрешён, ' +
+        'и что в быстрых настройках Android не включена плитка «Датчики выкл.» (Sensors off). На компьютере датчики можно имитировать в инструментах разработчика Chrome: <b>Дополнительные инструменты → Датчики</b>.';
+    showStartPanel(message + diagnostics(), true, 'Повторить');
+  }, NO_DATA_TIMEOUT_MS);
 }
 
 function onMotion(e) {
+  state.motionEvents++;
   const a = e.accelerationIncludingGravity;
-  if (a && a.x !== null) {
-    state.accel = { x: a.x, y: a.y, z: a.z };
-  }
   const r = e.rotationRate;
-  if (r && r.alpha !== null) {
-    state.rate = { alpha: r.alpha, beta: r.beta, gamma: r.gamma };
+  const hasAccel = a && a.x !== null;
+  const hasRate = r && r.alpha !== null;
+  if (!hasAccel && !hasRate) {
+    state.motionEmpty++;
+    return;
   }
+  if (hasAccel) state.accel = { x: a.x, y: a.y, z: a.z };
+  if (hasRate) state.rate = { alpha: r.alpha, beta: r.beta, gamma: r.gamma };
   state.eventCount++;
   markLive();
 }
 
 function onOrientation(e) {
-  if (e.beta === null && e.gamma === null) return;
+  state.orientEvents++;
+  if (e.beta === null && e.gamma === null) {
+    state.orientEmpty++;
+    return;
+  }
+  // the absolute variant is only a fallback for browsers that send nothing on the relative one
+  if (e.type === 'deviceorientation') state.hasRelative = true;
+  else if (state.hasRelative) return;
   state.orient = { alpha: e.alpha ?? 0, beta: e.beta ?? 0, gamma: e.gamma ?? 0 };
   markLive();
 }

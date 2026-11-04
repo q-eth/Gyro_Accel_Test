@@ -84,6 +84,14 @@ body {
 }
 
 .start-panel p { margin: 0; flex: 1 1 260px; }
+
+.start-panel .diag {
+  display: block;
+  margin-top: 8px;
+  font-size: 0.72rem;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
 .start-panel[hidden] { display: none; }
 
 .btn-primary {
